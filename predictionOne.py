@@ -26,3 +26,16 @@ def selectFeatures(train, test):
     train = train[num_features]
     test = test[num_features]
     return train, labels, test, test_ids
+
+
+def dataCleaning(train, test, labels):
+    labels = np.log1p(labels)
+    skewed_feats = train.apply(lambda x: skew(x.dropna())) #compute skewness
+    skewed_feats = skewed_feats[skewed_feats > 0.75]
+    skewed_feats = skewed_feats.index
+    train[skewed_feats] = np.log1p(train[skewed_feats])
+    test[skewed_feats] = np.log1p(test[skewed_feats])
+    # Fill nan for each feature
+    train = train.fillna(train.mean())
+    test = test.fillna(test.mean())
+    return train, test, labels
